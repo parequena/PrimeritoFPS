@@ -8,6 +8,7 @@ public class Health : MonoBehaviour {
     /// </summary>
     public float m_health;
     private float m_CurrentHealth;
+    public Death m_death;
 
     // Use this for initialization
 
@@ -32,10 +33,16 @@ public class Health : MonoBehaviour {
     /// <param name="amount"></param>
     public void Damage(float amount)
     {
-
+        m_CurrentHealth -= amount;
+        // m_health = m_CurrentHealth;
+        Debug.Log("Damaged: " + m_CurrentHealth);
         ///  // ## TO-DO 1 si la salud inicial es menor que 0 enviar mensaje void OnDeath() por si a alguien le interesa..
 
-
+        if(m_CurrentHealth <= 0)
+        {
+            gameObject.SendMessage("OnDeath");
+        }
     }
+
 
 }
