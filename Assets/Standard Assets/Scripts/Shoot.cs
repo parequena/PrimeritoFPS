@@ -99,8 +99,10 @@ public class Shoot : MonoBehaviour
             {
                 // ## TO-DO 5 - En función de si hay proyectil o no, usar la función de disparo
                 // con proyectil, o la de disparo con rayo ## 
-
-				ShootProjectile();
+                if (m_projectile)
+                    ShootProjectile();
+                else
+                    ShootRay();
                 // ## TO-DO 6 - Reiniciar el contador m_TimeSinceLastShot ## 
 
             }
@@ -169,7 +171,8 @@ public class Shoot : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (m_ShootPoint != null) Debug.DrawRay(m_ShootPoint.position, m_ShootPoint.forward * 2f, Color.red);
+        if (m_ShootPoint != null) 
+            if(m_IsAutomatic && !GetFireButton()) Debug.DrawRay(m_ShootPoint.position, transform.TransformDirection(Vector3.forward) * m_ShootRange, Color.red);
     }
 
     /// <summary>
@@ -177,15 +180,32 @@ public class Shoot : MonoBehaviour
     /// </summary>
     private void ShootRay()
     {
+
+        RaycastHit hit;
+        
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast(m_ShootPoint.position, transform.TransformDirection(Vector3.forward), out hit, m_ShootRange))
+        {
+            Debug.DrawRay(m_ShootPoint.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+            Debug.Log("Did Hit");
+
+            //hit.rigidbody.AddForceAtPosition(new Vector3(m_ShootForce, m_ShootForce, m_ShootForce), hit.point);
+            if(hit.rigidbody) 
+                hit.rigidbody.AddForce(transform.TransformDirection(Vector3.forward) * m_ShootForce);
+            Debug.Log(transform.TransformPoint(hit.point));
+            Instantiate(m_Sparkles, hit.point, Quaternion.identity);
+        }
+        else
+        {
+            Debug.DrawRay(m_ShootPoint.position, transform.TransformDirection(Vector3.forward) * m_ShootRange, Color.white);
+            Debug.Log("Did not Hit");
+        }
         // ## TO-DO 9 - Función que dispara con rayos ## 
         // 1.- Lanzar un rayo utlizando para ello el módulo de física -> pista Physics.Ra...
         // 2.- Aplicar una fuerza en el punto de impacto.
         // 3.- Colocar particulas de chispas en el punto de impacto -> pista Instanciamos pero no nos preocupasmo del destroy porque el asset puede autodestruirse (componente particle animator).
-        
+
     }
-
-    //## TO-DO 3 Mostrar un puntero laser con la dirección de disparo.
-
 
     #endregion
 }
