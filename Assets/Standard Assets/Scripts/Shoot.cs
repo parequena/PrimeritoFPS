@@ -61,11 +61,11 @@ public class Shoot : MonoBehaviour
     #endregion
 
     #region Non exposed fields
-	
-	/// <summary>
-	/// Tiempo transcurrido desde el último disparo
-	/// </summary>
-	private float m_TimeSinceLastShot = 0;
+
+    /// <summary>
+    /// Tiempo transcurrido desde el último disparo
+    /// </summary>
+    private float m_TimeSinceLastShot = 0;
 
     /// <summary>
     /// Indica si estamos disparando (util en modo automático).
@@ -81,6 +81,7 @@ public class Shoot : MonoBehaviour
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        audioSource.clip = m_ShootAudio;
     }
     /// <summary>
     /// En el método Update se consultará al Input si se ha pulsado el botón de disparo
@@ -92,6 +93,7 @@ public class Shoot : MonoBehaviour
         //  ## TO-DO 4 - Actualizar el contador m_TimeSinceLastShot ## 
         // Para ello, habrá que sumarle el tiempo de ejecución del anterior frame
 
+        m_TimeSinceLastShot+=Time.deltaTime;
 
         if (GetFireButton())
 		{
@@ -100,19 +102,22 @@ public class Shoot : MonoBehaviour
                 // ## TO-DO 5 - En función de si hay proyectil o no, usar la función de disparo
                 // con proyectil, o la de disparo con rayo ## 
                 if (m_projectile)
+                {
                     ShootProjectile();
+                    audioSource.Play();
+                }
                 else
                     ShootRay();
-                // ## TO-DO 6 - Reiniciar el contador m_TimeSinceLastShot ## 
 
+                m_TimeSinceLastShot = 0;
             }
 
             if (!m_IsShooting)
             {
                 m_IsShooting = true;
 
-                // ## TO-DO 7 Poner sonido de disparo.
-
+                if(m_IsAutomatic)
+                    audioSource.Play();
             }
 		}
         else if (m_IsShooting)
@@ -120,7 +125,8 @@ public class Shoot : MonoBehaviour
             m_IsShooting = false;
 
             // ## TO-DO 8 Parar sonido de disparo.
-
+            if(m_IsAutomatic)
+                audioSource.Pause();
         }
 
     }
@@ -134,7 +140,10 @@ public class Shoot : MonoBehaviour
 	private bool CanShoot()
 	{
         //  ## TO-DO 8 - Comprobar si puedo disparar #
-        return true;
+        if(m_IsAutomatic || (m_TimeSinceLastShot > m_TimeBetweenShots))
+            return true;
+
+        return false;
 	}
 	
     /// <summary>
