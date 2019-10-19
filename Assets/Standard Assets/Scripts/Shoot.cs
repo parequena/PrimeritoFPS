@@ -101,10 +101,16 @@ public class Shoot : MonoBehaviour
             {
                 // ## TO-DO 5 - En función de si hay proyectil o no, usar la función de disparo
                 // con proyectil, o la de disparo con rayo ## 
-                if (m_projectile)
+                if (!m_IsAutomatic)
                 {
-                    ShootProjectile();
-                    audioSource.Play();
+                    if (m_projectile)
+                    {
+                        ShootProjectile();
+                        audioSource.Play();
+                    }
+                    else
+                        ShootRay();
+                    
                 }
                 else
                     ShootRay();
@@ -197,6 +203,9 @@ public class Shoot : MonoBehaviour
         {
             Debug.DrawRay(m_ShootPoint.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             Debug.Log("Did Hit");
+
+            if (!m_IsAutomatic)
+                audioSource.Play();
 
             //hit.rigidbody.AddForceAtPosition(new Vector3(m_ShootForce, m_ShootForce, m_ShootForce), hit.point);
             if(hit.rigidbody) 
